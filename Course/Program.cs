@@ -1,4 +1,5 @@
 using Course.Presentation.Extensions;
+using Course.Presentation.Middleware;
 
 namespace Course
 {
@@ -23,6 +24,9 @@ namespace Course
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            // Add global exception handling
+            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseRouting();
             app.MapControllers();

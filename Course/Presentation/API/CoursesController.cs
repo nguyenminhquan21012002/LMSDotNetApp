@@ -1,5 +1,6 @@
 using Course.Core.Application.Commands;
 using Course.Core.Application.DTOs;
+using Course.Core.Application.Helpers;
 using Course.Core.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,55 +19,122 @@ namespace Course.Presentation.API
         }
         
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseDTO>>> GetAllCourses()
+        public async Task<ActionResult<BaseListResponse<CourseDTO>>> GetAllCourses()
         {
-            var query = new GetAllCoursesQuery();
-            var result = await _mediator.Send(query);
-            return Ok(result);
+            try
+            {
+                var query = new GetAllCoursesQuery();
+                var result = await _mediator.Send(query);
+                return Ok(ResponseHelper.SuccessList(result, "Courses retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.InternalServerErrorList<CourseDTO>(
+                    "An error occurred while retrieving courses", 500));
+            }
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<BaseListResponse<CourseDTO>>> GetCoursesWithPagination([FromQuery] BaseRequest request)
+        {
+            try
+            {
+                if (request == null)
+                    request = new BaseRequest();
+
+                var query = new GetCoursesPagedQuery(request);
+                var result = await _mediator.Send(query);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.InternalServerErrorList<CourseDTO>(
+                    "An error occurred while retrieving courses", 500));
+            }
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<CourseDTO>> GetCourseById(Guid id)
+        public async Task<ActionResult<BaseResponse<CourseDTO>>> GetCourseById(Guid id)
         {
-            var query = new GetCourseByIdQuery(id);
-            var result = await _mediator.Send(query);
-            
-            if (result == null)
-                return NotFound($"Course with ID {id} not found");
+            try
+            {
+                var query = new GetCourseByIdQuery(id);
+                var result = await _mediator.Send(query);
                 
-            return Ok(result);
+                if (result == null)
+                    return NotFound(ResponseHelper.NotFound<CourseDTO>($"Course with ID {id} not found"));
+                    
+                return Ok(ResponseHelper.Success(result, "Course retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.InternalServerError<CourseDTO>(
+                    "An error occurred while retrieving the course", 500));
+            }
         }
         
         [HttpPost]
-        public async Task<ActionResult<CourseDTO>> CreateCourse([FromBody] CreateCourseDTO createCourseDto)
+        public async Task<ActionResult<BaseResponse<CourseDTO>>> CreateCourse([FromBody] CreateCourseDTO createCourseDto)
         {
-            var command = new CreateCourseCommand(createCourseDto);
-            var result = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, result);
+            try
+            {
+                if (createCourseDto == null)
+                    return BadRequest(ResponseHelper.BadRequest<CourseDTO>("Invalid course data provided"));
+
+                var command = new CreateCourseCommand(createCourseDto);
+                var result = await _mediator.Send(command);
+                
+                var response = ResponseHelper.Success(result, "Course created successfully");
+                return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.InternalServerError<CourseDTO>(
+                    "An error occurred while creating the course", 500));
+            }
         }
         
         [HttpPut("{id}")]
-        public async Task<ActionResult<CourseDTO>> UpdateCourse(Guid id, [FromBody] UpdateCourseDTO updateCourseDto)
+        public async Task<ActionResult<BaseResponse<CourseDTO>>> UpdateCourse(Guid id, [FromBody] UpdateCourseDTO updateCourseDto)
         {
-            var command = new UpdateCourseCommand(id, updateCourseDto);
-            var result = await _mediator.Send(command);
-            
-            if (result == null)
-                return NotFound($"Course with ID {id} not found");
+            try
+            {
+                if (updateCourseDto == null)
+                    return BadRequest(ResponseHelper.BadRequest<CourseDTO>("Invalid course data provided"));
+
+                var command = new UpdateCourseCommand(id, updateCourseDto);
+                var result = await _mediator.Send(command);
                 
-            return Ok(result);
+                if (result == null)
+                    return NotFound(ResponseHelper.NotFound<CourseDTO>($"Course with ID {id} not found"));
+                    
+                return Ok(ResponseHelper.Success(result, "Course updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.InternalServerError<CourseDTO>(
+                    "An error occurred while updating the course", 500));
+            }
         }
         
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteCourse(Guid id)
+        public async Task<ActionResult<BaseResponse<object>>> DeleteCourse(Guid id)
         {
-            var command = new DeleteCourseCommand(id);
-            var result = await _mediator.Send(command);
-            
-            if (!result)
-                return NotFound($"Course with ID {id} not found");
+            try
+            {
+                var command = new DeleteCourseCommand(id);
+                var result = await _mediator.Send(command);
                 
-            return NoContent();
+                if (!result)
+                    return NotFound(ResponseHelper.NotFound<object>($"Course with ID {id} not found"));
+                    
+                return Ok(ResponseHelper.Success<object>(null, "Course deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ResponseHelper.InternalServerError<object>(
+                    "An error occurred while deleting the course", 500));
+            }
         }
     }
 }

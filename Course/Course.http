@@ -1,6 +1,87 @@
-@Course_HostAddress = http://localhost:5159
+### Test Course API - Base Response Format
 
-GET {{Course_HostAddress}}/weatherforecast/
-Accept: application/json
+@Course_HostAddress = http://localhost:5002
+
+# Health Check
+GET {{Course_HostAddress}}/ping
 
 ###
+
+# Get All Courses - BaseListResponse<CourseDTO>
+GET {{Course_HostAddress}}/api/courses
+
+###
+
+# Get Courses with Pagination - BaseListResponse<CourseDTO> with pagination info
+GET {{Course_HostAddress}}/api/courses/paged?Page=1&Limit=5&SearchKey=
+
+###
+
+# Get Courses with Pagination and Search - BaseListResponse<CourseDTO>
+GET {{Course_HostAddress}}/api/courses/paged?Page=1&Limit=3&SearchKey=Clean
+
+###
+
+# Get Courses Page 2 - BaseListResponse<CourseDTO>
+GET {{Course_HostAddress}}/api/courses/paged?Page=2&Limit=5
+
+###
+
+# Get Course By ID - BaseResponse<CourseDTO> (Success)
+GET {{Course_HostAddress}}/api/courses/00000000-0000-0000-0000-000000000001
+
+###
+
+# Get Course By ID - BaseResponse<CourseDTO> (Not Found)
+GET {{Course_HostAddress}}/api/courses/00000000-0000-0000-0000-000000000999
+
+###
+
+# Create Course - BaseResponse<CourseDTO>
+POST {{Course_HostAddress}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "Introduction to Clean Architecture",
+  "description": "Learn the fundamentals of Clean Architecture in .NET",
+  "instructor": "John Doe",
+  "type": 0,
+  "price": 99.99,
+  "duration": 120
+}
+
+###
+
+# Create Course - Validation Error (Bad Request)
+POST {{Course_HostAddress}}/api/courses
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "",
+  "instructor": "",
+  "type": 0,
+  "price": -10,
+  "duration": 0
+}
+
+###
+
+# Update Course - BaseResponse<CourseDTO>
+PUT {{Course_HostAddress}}/api/courses/00000000-0000-0000-0000-000000000001
+Content-Type: application/json
+
+{
+  "title": "Advanced Clean Architecture",
+  "description": "Advanced concepts in Clean Architecture",
+  "instructor": "Jane Smith",
+  "type": 1,
+  "price": 149.99,
+  "duration": 180,
+  "isActive": true
+}
+
+###
+
+# Delete Course - BaseResponse<object>
+DELETE {{Course_HostAddress}}/api/courses/00000000-0000-0000-0000-000000000001
