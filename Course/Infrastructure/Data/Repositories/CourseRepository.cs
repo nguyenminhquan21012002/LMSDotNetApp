@@ -71,5 +71,49 @@ namespace Course.Infrastructure.Data.Repositories
                 .Where(c => c.Type == type && c.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<(IEnumerable<Core.Domain.Entities.Course> courses, int total)> GetPagedAsync(int page, int limit, string searchKey = "")
+        {
+            var query = _context.Courses
+                .Include(c => c.Modules)
+                .Where(c => c.IsActive);
+
+            // Apply search filter if provided
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                query = query.Where(c => 
+                    c.Title.Contains(searchKey) || 
+                    c.Description.Contains(searchKey) || 
+                    c.Instructor.Contains(searchKey));
+            }
+
+            // Get total count
+            var total = await query.CountAsync();
+
+            // Apply pagination
+            var skip = (page - 1) * limit;
+            var courses = await query
+                .OrderBy(c => c.CreatedAt)
+                .Skip(skip)
+                .Take(limit)
+                .ToListAsync();
+
+            return (courses, total);
+        }
+
+        public async Task<int> GetTotalCountAsync(string searchKey = "")
+        {
+            var query = _context.Courses.Where(c => c.IsActive);
+
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                query = query.Where(c => 
+                    c.Title.Contains(searchKey) || 
+                    c.Description.Contains(searchKey) || 
+                    c.Instructor.Contains(searchKey));
+            }
+
+            return await query.CountAsync();
+        }
     }
 }
