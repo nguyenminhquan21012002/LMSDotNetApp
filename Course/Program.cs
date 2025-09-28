@@ -1,3 +1,4 @@
+using Course.Presentation.Extensions;
 
 namespace Course
 {
@@ -7,18 +8,26 @@ namespace Course
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // thêm Swagger
+            // Add services using extension method
+            builder.Services.AddApplicationServices(builder.Configuration);
+            
+            // Add Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
+            // Configure pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
+            app.UseRouting();
+            app.MapControllers();
+            
+            // Health check endpoint
             app.MapGet("/ping", () => Results.Ok(new { service = "course", ok = true }));
 
             app.Run("http://localhost:5002");
