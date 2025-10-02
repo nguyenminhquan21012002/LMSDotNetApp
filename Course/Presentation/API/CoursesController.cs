@@ -1,9 +1,11 @@
 using Course.Core.Application.Commands;
 using Course.Core.Application.DTOs;
-using Course.Core.Application.Helpers;
 using Course.Core.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using LMSApp.Shared.DTOs;
+using LMSApp.Shared.Extensions;
+using LMSApp.Shared.Helpers;
 
 namespace Course.Presentation.API
 {
