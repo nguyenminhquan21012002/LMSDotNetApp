@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Identity.Core.Domain.Entities;
 using Identity.Core.Application.DTOs;
+using Identity.Core.Domain.Entities;
 
 namespace Identity.Core.Application.Mappings
 {

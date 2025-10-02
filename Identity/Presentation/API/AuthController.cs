@@ -1,5 +1,8 @@
 ﻿using Identity.Core.Application.Commands;
+using Identity.Core.Application.DTOs;
 using Identity.Core.Application.Queries;
+using LMSApp.Shared.DTOs;
+using LMSApp.Shared.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,24 +20,53 @@ namespace Identity.Presentation.API
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserCommand cmd)
+        public async Task<ActionResult<BaseResponse<UserDto>>> Register([FromBody] RegisterUserCommand cmd)
         {
-            var user = await _mediator.Send(cmd);
-            return Ok(user);
+            try
+            {
+                var user = await _mediator.Send(cmd);
+                return this.SuccessResponse(user, "User registered successfully");
+            }
+            catch (Exception ex)
+            {
+                return this.BadRequestResponse<UserDto>(ex.Message);
+            }
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginUserCommand cmd)
+        public async Task<ActionResult<BaseResponse<AuthResultDto>>> Login([FromBody] LoginUserCommand cmd)
         {
-            var result = await _mediator.Send(cmd);
-            return result is null ? Unauthorized() : Ok(result);
+            try
+            {
+                var result = await _mediator.Send(cmd);
+
+                if (result is null)
+                    return this.ValidationErrorResponse<AuthResultDto>("Invalid credentials");
+
+                return this.SuccessResponse(result, "Login successful");
+            }
+            catch (Exception ex)
+            {
+                return this.InternalServerErrorResponse<AuthResultDto>(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUser(Guid id)
+        public async Task<ActionResult<BaseResponse<UserDto>>> GetUser(Guid id)
         {
-            var user = await _mediator.Send(new GetUserByIdQuery(id));
-            return user is null ? NotFound() : Ok(user);
+            try
+            {
+                var user = await _mediator.Send(new GetUserByIdQuery(id));
+
+                if (user is null)
+                    return this.NotFoundResponse<UserDto>($"User with ID {id} not found");
+
+                return this.SuccessResponse(user, "User retrieved successfully");
+            }
+            catch (Exception ex)
+            {
+                return this.InternalServerErrorResponse<UserDto>(ex.Message);
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Identity.Infrastructure.Data;
+using Identity.Infrastructure.Repositories;
 using Identity.Presentation.Extensions;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,7 +31,7 @@ namespace Identity
             builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             // DI from Infrastructure
-            builder.Services.AddIdentityDependencies();
+            builder.Services.AddIdentityDependencies(builder.Configuration);
 
             var app = builder.Build();
 
@@ -39,7 +39,10 @@ namespace Identity
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            app.MapControllers(); // 👈 bật Controllers
+            app.UseAuthentication();  
+            app.UseAuthorization();
+
+            app.MapControllers(); 
             app.MapGet("/ping", () => Results.Ok(new { service = "identity", ok = true }));
             app.MapGet("/healthz", () => "ok");
 

@@ -1,7 +1,7 @@
 ﻿using Identity.Core.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Identity.Infrastructure.Data
+namespace Identity.Infrastructure.Repositories
 {
     public class IdentityDbContext : DbContext
     {
