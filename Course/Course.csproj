@@ -24,5 +24,7 @@
     <Folder Include="Core\Domain\Interfaces\" />
     <Folder Include="Core\Domain\Events\" />
   </ItemGroup>
-
+    <ItemGroup>
+	    <ProjectReference Include="..\LMSApp\LMSApp.csproj" />
+    </ItemGroup>
 </Project>
