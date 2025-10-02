@@ -1,7 +1,7 @@
 ﻿using Identity.Core.Domain.Entities;
 using Identity.Core.Domain.Interfaces;
 
-namespace Identity.Infrastructure.Data
+namespace Identity.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -19,7 +19,7 @@ namespace Identity.Infrastructure.Data
         //    return Task.CompletedTask;
         //}
 
-        private static readonly List<User> _users = new(); 
+        private static readonly List<User> _users = new();
 
         public Task<User?> GetByEmailAsync(string email) =>
             Task.FromResult(_users.FirstOrDefault(u => u.Email == email));

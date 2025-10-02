@@ -1,5 +1,5 @@
-﻿using Identity.Core.Application.Commands;
-using FluentValidation;
+﻿using FluentValidation;
+using Identity.Core.Application.Commands;
 
 namespace Identity.Core.Application.Validators
 {

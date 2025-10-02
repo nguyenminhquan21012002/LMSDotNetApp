@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using Identity.Core.Application.DTOs;
 using Identity.Core.Application.Queries;
 using Identity.Core.Domain.Interfaces;
-using Identity.Core.Application.DTOs;
 using MediatR;
 
 namespace Identity.Core.Application.Handlers
