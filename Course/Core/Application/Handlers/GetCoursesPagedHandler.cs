@@ -1,8 +1,9 @@
 using AutoMapper;
 using Course.Core.Application.DTOs;
-using Course.Core.Application.Helpers;
 using Course.Core.Application.Queries;
 using Course.Core.Domain.Interfaces;
+using LMSApp.Shared.DTOs;
+using LMSApp.Shared.Helpers;
 using MediatR;
 
 namespace Course.Core.Application.Handlers

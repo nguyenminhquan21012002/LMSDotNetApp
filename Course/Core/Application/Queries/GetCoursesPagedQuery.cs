@@ -1,4 +1,5 @@
 using Course.Core.Application.DTOs;
+using LMSApp.Shared.DTOs;
 using MediatR;
 
 namespace Course.Core.Application.Queries

@@ -1,5 +1,5 @@
-using Course.Core.Application.DTOs;
-using Course.Core.Application.Helpers;
+using LMSApp.Shared.DTOs;
+using LMSApp.Shared.Helpers;
 using System.Net;
 using System.Text.Json;
 
