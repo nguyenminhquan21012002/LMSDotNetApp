@@ -8,10 +8,15 @@ namespace Course.Core.Application.Mappings
     {
         public CourseMappingProfile()
         {
-            CreateMap<Domain.Entities.Course, CourseDTO>();
-            CreateMap<CourseModule, CourseModuleDTO>();
-            CreateMap<CreateCourseDTO, Domain.Entities.Course>();
-            CreateMap<UpdateCourseDTO, Domain.Entities.Course>();
+            CreateMap<Courses, CourseDTO>();
+            CreateMap<CreateCourseDTO, Courses>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+            CreateMap<UpdateCourseDTO, Courses>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow));
         }
     }
 }

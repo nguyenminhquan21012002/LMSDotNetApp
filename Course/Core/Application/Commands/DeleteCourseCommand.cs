@@ -4,9 +4,9 @@ namespace Course.Core.Application.Commands
 {
     public class DeleteCourseCommand : IRequest<bool>
     {
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         
-        public DeleteCourseCommand(Guid id)
+        public DeleteCourseCommand(string id)
         {
             Id = id;
         }
