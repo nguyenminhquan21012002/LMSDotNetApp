@@ -4,7 +4,6 @@ using Course.Core.Application.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using LMSApp.Shared.DTOs;
-using LMSApp.Shared.Extensions;
 using LMSApp.Shared.Helpers;
 
 namespace Course.Presentation.API
@@ -56,7 +55,7 @@ namespace Course.Presentation.API
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<BaseResponse<CourseDTO>>> GetCourseById(Guid id)
+        public async Task<ActionResult<BaseResponse<CourseDTO>>> GetCourseById(string id)
         {
             try
             {
@@ -97,7 +96,7 @@ namespace Course.Presentation.API
         }
         
         [HttpPut("{id}")]
-        public async Task<ActionResult<BaseResponse<CourseDTO>>> UpdateCourse(Guid id, [FromBody] UpdateCourseDTO updateCourseDto)
+        public async Task<ActionResult<BaseResponse<CourseDTO>>> UpdateCourse(string id, [FromBody] UpdateCourseDTO updateCourseDto)
         {
             try
             {
@@ -120,7 +119,7 @@ namespace Course.Presentation.API
         }
         
         [HttpDelete("{id}")]
-        public async Task<ActionResult<BaseResponse<object>>> DeleteCourse(Guid id)
+        public async Task<ActionResult<BaseResponse<object>>> DeleteCourse(string id)
         {
             try
             {

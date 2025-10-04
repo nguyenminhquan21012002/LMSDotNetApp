@@ -19,8 +19,7 @@ namespace Course.Core.Application.Handlers
         
         public async Task<CourseDTO> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
         {
-            var course = _mapper.Map<Domain.Entities.Course>(request.CourseData);
-            course.Id = Guid.NewGuid();
+            var course = _mapper.Map<Domain.Entities.Courses>(request.CourseData);
             course.CreatedAt = DateTime.UtcNow;
             course.UpdatedAt = DateTime.UtcNow;
             

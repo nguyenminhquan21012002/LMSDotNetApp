@@ -2,100 +2,84 @@ using Course.Core.Domain.Entities;
 using Course.Core.Domain.Enums;
 using Course.Core.Domain.Interfaces;
 using Course.Infrastructure.Data.DbContexts;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace Course.Infrastructure.Data.Repositories
 {
     public class CourseRepository : ICourseRepository
     {
-        private readonly CourseDbContext _context;
+        private readonly IMongoCollection<Courses> _courses;
         
-        public CourseRepository(CourseDbContext context)
+        public CourseRepository(MongoDbContext context)
         {
-            _context = context;
+            _courses = context.Database?.GetCollection<Courses>("courses");
         }
         
-        public async Task<IEnumerable<Core.Domain.Entities.Course>> GetAllAsync()
+        public async Task<IEnumerable<Courses>> GetAllAsync()
         {
-            return await _context.Courses
-                .Include(c => c.Modules)
-                .Where(c => c.IsActive)
-                .ToListAsync();
+            IAsyncCursor<Courses>? task = await _courses.FindAsync(FilterDefinition<Courses>.Empty);
+            return task.ToEnumerable();
         }
         
-        public async Task<Core.Domain.Entities.Course?> GetByIdAsync(Guid id)
+        public async Task<Courses?> GetByIdAsync(string id)
         {
-            return await _context.Courses
-                .Include(c => c.Modules)
-                .FirstOrDefaultAsync(c => c.Id == id && c.IsActive);
+            FilterDefinition<Courses>? filter = Builders<Courses>.Filter.Eq(x => x.Id, id);
+            IAsyncCursor<Courses>? task = await _courses.FindAsync(filter);
+            return task.FirstOrDefault();
         }
         
-        public async Task<Core.Domain.Entities.Course> CreateAsync(Core.Domain.Entities.Course course)
+        public async Task<Courses> CreateAsync(Courses course)
         {
-            _context.Courses.Add(course);
-            await _context.SaveChangesAsync();
+            await _courses.InsertOneAsync(course);
             return course;
         }
         
-        public async Task<Core.Domain.Entities.Course> UpdateAsync(Core.Domain.Entities.Course course)
+        public async Task<Courses> UpdateAsync(Courses course)
         {
-            course.UpdatedAt = DateTime.UtcNow;
-            _context.Courses.Update(course);
-            await _context.SaveChangesAsync();
+            var filter = Builders<Courses>.Filter.Eq(x => x.Id, course.Id);
+            var update = Builders<Courses>.Update
+                .Set(x => x.Title, course.Title)
+                .Set(x => x.Description, course.Description)
+                .Set(x => x.Category, course.Category)
+                .Set(x => x.Level, course.Level)
+                .Set(x => x.Status, course.Status)
+                .Set(x => x.UpdatedAt, DateTime.UtcNow);
+            await _courses.UpdateOneAsync(filter, update);
             return course;
         }
         
-        public async Task<bool> DeleteAsync(Guid id)
+        public async Task<bool> DeleteAsync(string id)
         {
-            var course = await _context.Courses.FindAsync(id);
-            if (course == null) return false;
-            
-            course.IsActive = false;
-            course.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-            return true;
+            var filter = Builders<Courses>.Filter.Eq(x => x.Id, id);
+            var result = await _courses.DeleteOneAsync(filter);
+            return result.DeletedCount > 0;
         }
         
-        public async Task<IEnumerable<Core.Domain.Entities.Course>> GetByInstructorAsync(string instructor)
+        public async Task<(IEnumerable<Courses> courses, long total)> GetPagedAsync(int page, int limit, string searchKey = "")
         {
-            return await _context.Courses
-                .Include(c => c.Modules)
-                .Where(c => c.Instructor == instructor && c.IsActive)
-                .ToListAsync();
-        }
-        
-        public async Task<IEnumerable<Core.Domain.Entities.Course>> GetByTypeAsync(CourseType type)
-        {
-            return await _context.Courses
-                .Include(c => c.Modules)
-                .Where(c => c.Type == type && c.IsActive)
-                .ToListAsync();
-        }
-
-        public async Task<(IEnumerable<Core.Domain.Entities.Course> courses, int total)> GetPagedAsync(int page, int limit, string searchKey = "")
-        {
-            var query = _context.Courses
-                .Include(c => c.Modules)
-                .Where(c => c.IsActive);
+            // Build filter for active courses
+            var filter = Builders<Courses>.Filter.Eq(c => c.Status, 1);
 
             // Apply search filter if provided
             if (!string.IsNullOrEmpty(searchKey))
             {
-                query = query.Where(c => 
-                    c.Title.Contains(searchKey) || 
-                    c.Description.Contains(searchKey) || 
-                    c.Instructor.Contains(searchKey));
+                var searchFilter = Builders<Courses>.Filter.Or(
+                    Builders<Courses>.Filter.Regex(c => c.Title, new MongoDB.Bson.BsonRegularExpression(searchKey, "i")),
+                    Builders<Courses>.Filter.Regex(c => c.Description, new MongoDB.Bson.BsonRegularExpression(searchKey, "i"))
+                );
+                filter = Builders<Courses>.Filter.And(filter, searchFilter);
             }
 
             // Get total count
-            var total = await query.CountAsync();
+            var total = await _courses.CountDocumentsAsync(filter);
 
             // Apply pagination
             var skip = (page - 1) * limit;
-            var courses = await query
-                .OrderBy(c => c.CreatedAt)
+            var courses = await _courses
+                .Find(filter)
+                .Sort(Builders<Courses>.Sort.Ascending(c => c.CreatedAt))
                 .Skip(skip)
-                .Take(limit)
+                .Limit(limit)
                 .ToListAsync();
 
             return (courses, total);
@@ -103,17 +87,19 @@ namespace Course.Infrastructure.Data.Repositories
 
         public async Task<int> GetTotalCountAsync(string searchKey = "")
         {
-            var query = _context.Courses.Where(c => c.IsActive);
+            // Build filter for active courses
+            var filter = Builders<Courses>.Filter.Eq(c => c.Status, 1);
 
             if (!string.IsNullOrEmpty(searchKey))
             {
-                query = query.Where(c => 
-                    c.Title.Contains(searchKey) || 
-                    c.Description.Contains(searchKey) || 
-                    c.Instructor.Contains(searchKey));
+                var searchFilter = Builders<Courses>.Filter.Or(
+                    Builders<Courses>.Filter.Regex(c => c.Title, new MongoDB.Bson.BsonRegularExpression(searchKey, "i")),
+                    Builders<Courses>.Filter.Regex(c => c.Description, new MongoDB.Bson.BsonRegularExpression(searchKey, "i"))
+                );
+                filter = Builders<Courses>.Filter.And(filter, searchFilter);
             }
 
-            return await query.CountAsync();
+            return (int)await _courses.CountDocumentsAsync(filter);
         }
     }
 }

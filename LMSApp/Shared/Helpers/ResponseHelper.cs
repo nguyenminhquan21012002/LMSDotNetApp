@@ -16,7 +16,7 @@ namespace LMSApp.Shared.Helpers
             return new BaseListResponse<T>(dataList, dataList.Count, 1, dataList.Count, message);
         }
 
-        public static BaseListResponse<T> SuccessListPaged<T>(IEnumerable<T> data, int total, int currentPage, int pageSize, string message = "Data retrieved successfully")
+        public static BaseListResponse<T> SuccessListPaged<T>(IEnumerable<T> data, long total, int currentPage, int pageSize, string message = "Data retrieved successfully")
         {
             return new BaseListResponse<T>(data, total, currentPage, pageSize, message);
         }

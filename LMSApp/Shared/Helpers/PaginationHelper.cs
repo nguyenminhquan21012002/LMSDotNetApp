@@ -18,7 +18,7 @@ namespace LMSApp.Shared.Helpers
 
         public static BaseListResponse<T> CreatePagedResponse<T>(
             IEnumerable<T> data, 
-            int total, 
+            long total, 
             BaseRequest request, 
             string message = "Data retrieved successfully")
         {

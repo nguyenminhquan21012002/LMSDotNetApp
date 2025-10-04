@@ -4,7 +4,7 @@
     {
         public string Status { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
-        public int Total { get; set; }
+        public long Total { get; set; }
         public int TotalPages { get; set; }
         public int CurrentPage { get; set; }
         public IList<T>? Data { get; set; }
@@ -36,7 +36,7 @@
             Error = null;
         }
 
-        public BaseListResponse(IEnumerable<T> data, int total, int currentPage, int pageSize, string message = "Success")
+        public BaseListResponse(IEnumerable<T> data, long total, int currentPage, int pageSize, string message = "Success")
         {
             Status = "Success";
             Message = message;

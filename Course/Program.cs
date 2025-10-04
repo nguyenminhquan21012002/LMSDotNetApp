@@ -1,5 +1,6 @@
+using Course.Infrastructure.Data.DbContexts;
 using Course.Presentation.Extensions;
-using Course.Presentation.Middleware;
+using LMSApp.Shared.Middleware;
 
 namespace Course
 {
