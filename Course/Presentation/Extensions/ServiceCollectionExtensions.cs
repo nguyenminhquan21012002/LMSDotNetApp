@@ -21,12 +21,7 @@ namespace Course.Presentation.Extensions
             
             // MongoDB
             services.AddSingleton<MongoDbContext>();
-            //services.AddSingleton<IMongoCollection<Courses>>(provider =>
-            //{
-            //    var mongoDbContext = provider.GetRequiredService<MongoDbContext>();
-            //    return mongoDbContext.Database.GetCollection<Courses>("courses");
-            //});
-            
+
             // MediatR
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
             

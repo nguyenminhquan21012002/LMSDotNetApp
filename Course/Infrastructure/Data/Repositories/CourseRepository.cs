@@ -58,7 +58,7 @@ namespace Course.Infrastructure.Data.Repositories
         public async Task<(IEnumerable<Courses> courses, long total)> GetPagedAsync(int page, int limit, string searchKey = "")
         {
             // Build filter for active courses
-            var filter = Builders<Courses>.Filter.Eq(c => c.Status, 1);
+            FilterDefinition<Courses> filter = Builders<Courses>.Filter.Empty;
 
             // Apply search filter if provided
             if (!string.IsNullOrEmpty(searchKey))
@@ -88,7 +88,7 @@ namespace Course.Infrastructure.Data.Repositories
         public async Task<int> GetTotalCountAsync(string searchKey = "")
         {
             // Build filter for active courses
-            var filter = Builders<Courses>.Filter.Eq(c => c.Status, 1);
+            FilterDefinition<Courses> filter = Builders<Courses>.Filter.Empty;
 
             if (!string.IsNullOrEmpty(searchKey))
             {
