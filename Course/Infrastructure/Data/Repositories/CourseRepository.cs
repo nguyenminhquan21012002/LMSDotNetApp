@@ -1,43 +1,54 @@
+using AutoMapper;
+using Course.Core.Application.DTOs;
 using Course.Core.Domain.Entities;
 using Course.Core.Domain.Enums;
 using Course.Core.Domain.Interfaces;
 using Course.Infrastructure.Data.DbContexts;
+using Course.Infrastructure.Data.MongoDbDocuments;
 using MongoDB.Driver;
 
 namespace Course.Infrastructure.Data.Repositories
 {
     public class CourseRepository : ICourseRepository
     {
-        private readonly IMongoCollection<Courses> _courses;
-        
-        public CourseRepository(MongoDbContext context)
+        private readonly IMongoCollection<CourseDocument> _courses;
+        private readonly IMapper _mapper;
+        private readonly ILogger<CourseRepository> _logger;
+        public CourseRepository(MongoDbContext context, IMapper mapper, ILogger<CourseRepository> logger)
         {
-            _courses = context.Database?.GetCollection<Courses>("courses");
+            _courses = context.Database?.GetCollection<CourseDocument>("courses");
+            _mapper = mapper;
+            _logger = logger;
         }
         
         public async Task<IEnumerable<Courses>> GetAllAsync()
         {
-            IAsyncCursor<Courses>? task = await _courses.FindAsync(FilterDefinition<Courses>.Empty);
-            return task.ToEnumerable();
+            IAsyncCursor<CourseDocument>? task = await _courses.FindAsync(FilterDefinition<CourseDocument>.Empty);
+            IEnumerable<CourseDocument> courseDocuments = task.ToEnumerable();
+            return _mapper.Map<IEnumerable<Courses>>(courseDocuments);
         }
         
         public async Task<Courses?> GetByIdAsync(string id)
         {
-            FilterDefinition<Courses>? filter = Builders<Courses>.Filter.Eq(x => x.Id, id);
-            IAsyncCursor<Courses>? task = await _courses.FindAsync(filter);
-            return task.FirstOrDefault();
+            FilterDefinition<CourseDocument>? filter = Builders<CourseDocument>.Filter.Eq(x => x.Id, id);
+            IAsyncCursor<CourseDocument>? task = await _courses.FindAsync(filter);
+            CourseDocument document = task.FirstOrDefault();
+            return _mapper.Map<Courses>(document);
         }
         
         public async Task<Courses> CreateAsync(Courses course)
         {
-            await _courses.InsertOneAsync(course);
+            var document = _mapper.Map<CourseDocument>(course);
+            await _courses.InsertOneAsync(document);
+            course.Id = document.Id;
             return course;
         }
-        
+
         public async Task<Courses> UpdateAsync(Courses course)
         {
-            var filter = Builders<Courses>.Filter.Eq(x => x.Id, course.Id);
-            var update = Builders<Courses>.Update
+            var filter = Builders<CourseDocument>.Filter.Eq(x => x.Id, course.Id);
+            _logger.LogInformation("check filter " + filter, "Check UpdateAsync Filter");
+            var update = Builders<CourseDocument>.Update
                 .Set(x => x.Title, course.Title)
                 .Set(x => x.Description, course.Description)
                 .Set(x => x.Category, course.Category)
@@ -50,7 +61,7 @@ namespace Course.Infrastructure.Data.Repositories
         
         public async Task<bool> DeleteAsync(string id)
         {
-            var filter = Builders<Courses>.Filter.Eq(x => x.Id, id);
+            var filter = Builders<CourseDocument>.Filter.Eq(x => x.Id, id);
             var result = await _courses.DeleteOneAsync(filter);
             return result.DeletedCount > 0;
         }
@@ -58,16 +69,16 @@ namespace Course.Infrastructure.Data.Repositories
         public async Task<(IEnumerable<Courses> courses, long total)> GetPagedAsync(int page, int limit, string searchKey = "")
         {
             // Build filter for active courses
-            var filter = Builders<Courses>.Filter.Eq(c => c.Status, 1);
+            FilterDefinition<CourseDocument> filter = Builders<CourseDocument>.Filter.Empty;
 
             // Apply search filter if provided
             if (!string.IsNullOrEmpty(searchKey))
             {
-                var searchFilter = Builders<Courses>.Filter.Or(
-                    Builders<Courses>.Filter.Regex(c => c.Title, new MongoDB.Bson.BsonRegularExpression(searchKey, "i")),
-                    Builders<Courses>.Filter.Regex(c => c.Description, new MongoDB.Bson.BsonRegularExpression(searchKey, "i"))
+                var searchFilter = Builders<CourseDocument>.Filter.Or(
+                    Builders<CourseDocument>.Filter.Regex(c => c.Title, new MongoDB.Bson.BsonRegularExpression(searchKey, "i")),
+                    Builders<CourseDocument>.Filter.Regex(c => c.Description, new MongoDB.Bson.BsonRegularExpression(searchKey, "i"))
                 );
-                filter = Builders<Courses>.Filter.And(filter, searchFilter);
+                filter = Builders<CourseDocument>.Filter.And(filter, searchFilter);
             }
 
             // Get total count
@@ -75,28 +86,29 @@ namespace Course.Infrastructure.Data.Repositories
 
             // Apply pagination
             var skip = (page - 1) * limit;
-            var courses = await _courses
+            List<CourseDocument> courseDocument = await _courses
                 .Find(filter)
-                .Sort(Builders<Courses>.Sort.Ascending(c => c.CreatedAt))
+                .Sort(Builders<CourseDocument>.Sort.Ascending(c => c.CreatedAt))
                 .Skip(skip)
                 .Limit(limit)
                 .ToListAsync();
 
+            List<Courses> courses = _mapper.Map<List<Courses>>(courseDocument);
             return (courses, total);
         }
 
         public async Task<int> GetTotalCountAsync(string searchKey = "")
         {
             // Build filter for active courses
-            var filter = Builders<Courses>.Filter.Eq(c => c.Status, 1);
+            FilterDefinition<CourseDocument> filter = Builders<CourseDocument>.Filter.Empty;
 
             if (!string.IsNullOrEmpty(searchKey))
             {
-                var searchFilter = Builders<Courses>.Filter.Or(
-                    Builders<Courses>.Filter.Regex(c => c.Title, new MongoDB.Bson.BsonRegularExpression(searchKey, "i")),
-                    Builders<Courses>.Filter.Regex(c => c.Description, new MongoDB.Bson.BsonRegularExpression(searchKey, "i"))
+                var searchFilter = Builders<CourseDocument>.Filter.Or(
+                    Builders<CourseDocument>.Filter.Regex(c => c.Title, new MongoDB.Bson.BsonRegularExpression(searchKey, "i")),
+                    Builders<CourseDocument>.Filter.Regex(c => c.Description, new MongoDB.Bson.BsonRegularExpression(searchKey, "i"))
                 );
-                filter = Builders<Courses>.Filter.And(filter, searchFilter);
+                filter = Builders<CourseDocument>.Filter.And(filter, searchFilter);
             }
 
             return (int)await _courses.CountDocumentsAsync(filter);

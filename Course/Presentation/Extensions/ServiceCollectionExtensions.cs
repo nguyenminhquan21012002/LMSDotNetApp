@@ -3,6 +3,7 @@ using Course.Core.Application.Validators;
 using Course.Core.Domain.Entities;
 using Course.Core.Domain.Interfaces;
 using Course.Infrastructure.Data.DbContexts;
+using Course.Infrastructure.Data.Mappings;
 using Course.Infrastructure.Data.Repositories;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -21,18 +22,14 @@ namespace Course.Presentation.Extensions
             
             // MongoDB
             services.AddSingleton<MongoDbContext>();
-            //services.AddSingleton<IMongoCollection<Courses>>(provider =>
-            //{
-            //    var mongoDbContext = provider.GetRequiredService<MongoDbContext>();
-            //    return mongoDbContext.Database.GetCollection<Courses>("courses");
-            //});
-            
+
             // MediatR
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
             
             // AutoMapper
             services.AddAutoMapper(typeof(CourseMappingProfile));
-            
+            services.AddAutoMapper(typeof(CourseDocumentMappingProfile));
+
             // FluentValidation
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<CreateCourseValidator>();
