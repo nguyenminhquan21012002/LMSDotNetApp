@@ -1,7 +1,5 @@
 using AutoMapper;
-using Course.Core.Application.DTOs;
 using Course.Core.Domain.Entities;
-using Course.Core.Domain.Enums;
 using Course.Core.Domain.Interfaces;
 using Course.Infrastructure.Data.DbContexts;
 using Course.Infrastructure.Data.MongoDbDocuments;

@@ -1,4 +1,4 @@
-using Course.Infrastructure.Data.DbContexts;
+using Course.Infrastructure.Data.Extensions;
 using Course.Presentation.Extensions;
 using LMSApp.Shared.Middleware;
 
@@ -12,6 +12,7 @@ namespace Course
 
             // Add services using extension method
             builder.Services.AddApplicationServices(builder.Configuration);
+            builder.Services.AddInfrastructureServices(builder.Configuration);
             
             // Add Swagger
             builder.Services.AddEndpointsApiExplorer();
