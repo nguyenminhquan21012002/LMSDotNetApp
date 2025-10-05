@@ -3,6 +3,7 @@ using Course.Core.Application.Validators;
 using Course.Core.Domain.Entities;
 using Course.Core.Domain.Interfaces;
 using Course.Infrastructure.Data.DbContexts;
+using Course.Infrastructure.Data.Mappings;
 using Course.Infrastructure.Data.Repositories;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -27,7 +28,8 @@ namespace Course.Presentation.Extensions
             
             // AutoMapper
             services.AddAutoMapper(typeof(CourseMappingProfile));
-            
+            services.AddAutoMapper(typeof(CourseDocumentMappingProfile));
+
             // FluentValidation
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<CreateCourseValidator>();

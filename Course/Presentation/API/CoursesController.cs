@@ -1,10 +1,11 @@
 using Course.Core.Application.Commands;
 using Course.Core.Application.DTOs;
 using Course.Core.Application.Queries;
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
 using LMSApp.Shared.DTOs;
 using LMSApp.Shared.Helpers;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Course.Presentation.API
 {
@@ -13,10 +14,12 @@ namespace Course.Presentation.API
     public class CoursesController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<CoursesController> _logger;
         
-        public CoursesController(IMediator mediator)
+        public CoursesController(IMediator mediator, ILogger<CoursesController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
         
         [HttpGet]
@@ -30,6 +33,7 @@ namespace Course.Presentation.API
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message, "GetAllCoursesError");
                 return StatusCode(500, ResponseHelper.InternalServerErrorList<CourseDTO>(
                     "An error occurred while retrieving courses", 500));
             }
@@ -49,6 +53,7 @@ namespace Course.Presentation.API
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message, "GetCoursesWithPaginationError");
                 return StatusCode(500, ResponseHelper.InternalServerErrorList<CourseDTO>(
                     "An error occurred while retrieving courses", 500));
             }
@@ -69,6 +74,7 @@ namespace Course.Presentation.API
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message, "GetCoursesByIdError");
                 return StatusCode(500, ResponseHelper.InternalServerError<CourseDTO>(
                     "An error occurred while retrieving the course", 500));
             }
@@ -90,6 +96,7 @@ namespace Course.Presentation.API
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message, "CreateCourseError");
                 return StatusCode(500, ResponseHelper.InternalServerError<CourseDTO>(
                     "An error occurred while creating the course", 500));
             }
@@ -113,6 +120,7 @@ namespace Course.Presentation.API
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message, "UpdateCourseError");
                 return StatusCode(500, ResponseHelper.InternalServerError<CourseDTO>(
                     "An error occurred while updating the course", 500));
             }
@@ -133,6 +141,7 @@ namespace Course.Presentation.API
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message, "DeleteCourseError");
                 return StatusCode(500, ResponseHelper.InternalServerError<object>(
                     "An error occurred while deleting the course", 500));
             }

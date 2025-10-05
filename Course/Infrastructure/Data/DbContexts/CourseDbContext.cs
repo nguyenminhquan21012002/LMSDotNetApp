@@ -10,6 +10,5 @@ namespace Course.Infrastructure.Data.DbContexts
         }
         
         public DbSet<Courses> Courses { get; set; }
-        public DbSet<CourseModule> CourseModules { get; set; }
     }
 }
