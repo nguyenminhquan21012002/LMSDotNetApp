@@ -9,19 +9,19 @@ namespace Course.Infrastructure.Data.Repositories
 {
     public class CourseRepository : ICourseRepository
     {
-        private readonly IMongoCollection<CourseDocument> _courses;
+        private readonly IMongoCollection<CourseDocument> _document;
         private readonly IMapper _mapper;
         private readonly ILogger<CourseRepository> _logger;
         public CourseRepository(MongoDbContext context, IMapper mapper, ILogger<CourseRepository> logger)
         {
-            _courses = context.Database?.GetCollection<CourseDocument>("courses");
+            _document = context.Database?.GetCollection<CourseDocument>("courses");
             _mapper = mapper;
             _logger = logger;
         }
         
         public async Task<IEnumerable<Courses>> GetAllAsync()
         {
-            IAsyncCursor<CourseDocument>? task = await _courses.FindAsync(FilterDefinition<CourseDocument>.Empty);
+            IAsyncCursor<CourseDocument>? task = await _document.FindAsync(FilterDefinition<CourseDocument>.Empty);
             IEnumerable<CourseDocument> courseDocuments = task.ToEnumerable();
             return _mapper.Map<IEnumerable<Courses>>(courseDocuments);
         }
@@ -29,7 +29,7 @@ namespace Course.Infrastructure.Data.Repositories
         public async Task<Courses?> GetByIdAsync(string id)
         {
             FilterDefinition<CourseDocument>? filter = Builders<CourseDocument>.Filter.Eq(x => x.Id, id);
-            IAsyncCursor<CourseDocument>? task = await _courses.FindAsync(filter);
+            IAsyncCursor<CourseDocument>? task = await _document.FindAsync(filter);
             CourseDocument document = task.FirstOrDefault();
             return _mapper.Map<Courses>(document);
         }
@@ -37,7 +37,7 @@ namespace Course.Infrastructure.Data.Repositories
         public async Task<Courses> CreateAsync(Courses course)
         {
             var document = _mapper.Map<CourseDocument>(course);
-            await _courses.InsertOneAsync(document);
+            await _document.InsertOneAsync(document);
             course.Id = document.Id;
             return course;
         }
@@ -53,14 +53,14 @@ namespace Course.Infrastructure.Data.Repositories
                 .Set(x => x.Level, course.Level)
                 .Set(x => x.Status, course.Status)
                 .Set(x => x.UpdatedAt, DateTime.UtcNow);
-            await _courses.UpdateOneAsync(filter, update);
+            await _document.UpdateOneAsync(filter, update);
             return course;
         }
         
         public async Task<bool> DeleteAsync(string id)
         {
             var filter = Builders<CourseDocument>.Filter.Eq(x => x.Id, id);
-            var result = await _courses.DeleteOneAsync(filter);
+            var result = await _document.DeleteOneAsync(filter);
             return result.DeletedCount > 0;
         }
         
@@ -80,11 +80,11 @@ namespace Course.Infrastructure.Data.Repositories
             }
 
             // Get total count
-            var total = await _courses.CountDocumentsAsync(filter);
+            var total = await _document.CountDocumentsAsync(filter);
 
             // Apply pagination
             var skip = (page - 1) * limit;
-            List<CourseDocument> courseDocument = await _courses
+            List<CourseDocument> courseDocument = await _document
                 .Find(filter)
                 .Sort(Builders<CourseDocument>.Sort.Ascending(c => c.CreatedAt))
                 .Skip(skip)
@@ -109,7 +109,7 @@ namespace Course.Infrastructure.Data.Repositories
                 filter = Builders<CourseDocument>.Filter.And(filter, searchFilter);
             }
 
-            return (int)await _courses.CountDocumentsAsync(filter);
+            return (int)await _document.CountDocumentsAsync(filter);
         }
     }
 }
