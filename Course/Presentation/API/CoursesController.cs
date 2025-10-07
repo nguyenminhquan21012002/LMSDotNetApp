@@ -5,7 +5,6 @@ using LMSApp.Shared.DTOs;
 using LMSApp.Shared.Helpers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Course.Presentation.API
 {

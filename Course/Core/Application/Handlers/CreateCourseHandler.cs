@@ -1,6 +1,7 @@
 using AutoMapper;
 using Course.Core.Application.Commands;
 using Course.Core.Application.DTOs;
+using Course.Core.Domain.Entities;
 using Course.Core.Domain.Interfaces;
 using MediatR;
 
@@ -19,7 +20,7 @@ namespace Course.Core.Application.Handlers
         
         public async Task<CourseDTO> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
         {
-            var course = _mapper.Map<Domain.Entities.Courses>(request.CourseData);
+            var course = _mapper.Map<Courses>(request.CourseData);
             course.CreatedAt = DateTime.UtcNow;
             course.UpdatedAt = DateTime.UtcNow;
             
