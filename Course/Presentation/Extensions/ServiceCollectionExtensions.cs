@@ -15,6 +15,7 @@ namespace Course.Presentation.Extensions
             // AutoMapper
             services.AddAutoMapper(typeof(CourseMappingProfile));
             services.AddAutoMapper(typeof(LessonMappingProfile));
+            services.AddAutoMapper(typeof(ResourceMappingProfile));
 
             // FluentValidation
             services.AddFluentValidationAutoValidation();

@@ -50,8 +50,8 @@ namespace Course.Infrastructure.Data.Repositories
                 .Set(x => x.Title, course.Title)
                 .Set(x => x.Description, course.Description)
                 .Set(x => x.Category, course.Category)
-                .Set(x => x.Level, course.Level)
-                .Set(x => x.Status, course.Status)
+                .Set(x => x.Level, ((int)course.Level))
+                .Set(x => x.Status, ((int)course.Status))
                 .Set(x => x.UpdatedAt, DateTime.UtcNow);
             await _document.UpdateOneAsync(filter, update);
             return course;

@@ -20,10 +20,12 @@ namespace Course.Infrastructure.Data.Extensions
             // Repositories
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<ILessonRepository, LessonRepository>();
+            services.AddScoped<IResourceRepository, ResourceRepository>();
 
             // Auto Mapper
             services.AddAutoMapper(typeof(CourseDocumentMappingProfile));
             services.AddAutoMapper(typeof(LessonDocumentMappingProfile));
+            services.AddAutoMapper(typeof(ResourceDocumentMappingProfile));
 
             return services;
         }
