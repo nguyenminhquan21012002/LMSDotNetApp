@@ -15,7 +15,7 @@ namespace Course.Infrastructure.Data.MongoDbDocuments
         [BsonElement("category")]
         public string? Category { get; set; }
         [BsonElement("level")]
-        public string? Level { get; set; }
+        public int? Level { get; set; }
         [BsonElement("created_at")]
         public DateTime CreatedAt { get; set; }
         [BsonElement("updated_at")]
