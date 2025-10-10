@@ -1,6 +1,5 @@
-@Quiz_HostAddress = http://localhost:5043
+### Health Check
+GET http://localhost:5005/ping
 
-GET {{Quiz_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
+### Get Quiz By Id
+GET http://localhost:5005/api/Quiz/671234567890abcdef123456

@@ -7,14 +7,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="MediatR" Version="12.4.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.20" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.20">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MongoDB.Driver" Version="3.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\LMSApp\LMSApp.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Core\Application\Commands\" />
+	  <Folder Include="Core\Application\DTOs\" />
+	  <Folder Include="Core\Application\Handlers\" />
+	  <Folder Include="Core\Application\Mappings\" />
+	  <Folder Include="Core\Application\Queries\" />
+	  <Folder Include="Infrastructure\Messaging\" />
 	</ItemGroup>
 </Project>
