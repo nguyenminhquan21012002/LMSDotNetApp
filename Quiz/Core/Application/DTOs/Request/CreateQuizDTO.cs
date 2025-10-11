@@ -1,10 +1,10 @@
 ﻿using Quiz.Core.Domain.Enums;
 
-namespace Quiz.Core.Domain.Entities
+namespace Quiz.Core.Application.DTOs.Request
 {
-    public class Quizzes
+    public class CreateQuizDTO
     {
-        public string? Id { get; set; }
+        public string? CourseId { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
         public QuizType? Type { get; set; }

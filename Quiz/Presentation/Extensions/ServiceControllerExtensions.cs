@@ -1,4 +1,7 @@
-﻿using Quiz.Core.Application.Mappings;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Quiz.Core.Application.Mappings;
+using Quiz.Core.Application.Validators;
 
 namespace Quiz.Presentation.Extensions
 {
@@ -11,6 +14,10 @@ namespace Quiz.Presentation.Extensions
 
             // AutoMapper
             services.AddAutoMapper(typeof(QuizMappingProfile));
+
+            // FluentValidation
+            services.AddValidatorsFromAssemblyContaining<CreateQuizValidator>();
+            services.AddFluentValidationAutoValidation();
 
             // Controllers
             services.AddControllers();
