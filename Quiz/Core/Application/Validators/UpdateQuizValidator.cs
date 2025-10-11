@@ -9,6 +9,7 @@ namespace Quiz.Core.Application.Validators
         {
 
             RuleFor(x => x.Title)
+                .NotEmpty().WithMessage("Title cannot be empty")
                 .MaximumLength(200).WithMessage("Title cannot exceed 200 characters");
 
             RuleFor(x => x.Description)
